@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addUsers = exports.getUsers = void 0;
+exports.getUser = exports.addUser = exports.addAttendences = exports.getUsers = void 0;
 const postgres_js_1 = require("drizzle-orm/postgres-js");
 const postgres_1 = __importDefault(require("postgres"));
 const schema_1 = require("./schema");
@@ -26,15 +26,35 @@ const connect = () => {
 };
 const getUsers = () => __awaiter(void 0, void 0, void 0, function* () {
     const db = connect();
-    //   await db.insert(users).values({
-    //     phone: "0500000000",
-    //     fullName: "Jaafar",
-    //   });
     const allUsers = yield db.select().from(schema_1.users);
     return allUsers;
 });
 exports.getUsers = getUsers;
-const addUsers = () => __awaiter(void 0, void 0, void 0, function* () {
+const getUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const db = connect();
+    const user = yield db.select().from(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.id, id));
+    return user;
+});
+exports.getUser = getUser;
+const addUser = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    if (user.fullName.split(" ").length < 4) {
+        throw new Error("Enter Your Full Name (4 Names At Least)");
+    }
+    if (user.phone.length !== 10) {
+        throw new Error("Enter Your Phone Number (10 Characters long)");
+    }
+    const db = connect();
+    yield db
+        .insert(schema_1.users)
+        .values({
+        fullName: user.fullName,
+        phone: user.phone,
+        dateTime: null,
+    })
+        .onConflictDoNothing({ target: schema_1.users.fullName });
+});
+exports.addUser = addUser;
+const addAttendences = (id) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const date = new Date();
     const hour = date.getHours();
@@ -47,10 +67,7 @@ const addUsers = () => __awaiter(void 0, void 0, void 0, function* () {
         return format.includes(time.split("-")[0]);
     };
     const db = connect();
-    const result = yield db
-        .select()
-        .from(schema_1.users)
-        .where((0, drizzle_orm_1.eq)(schema_1.users.id, "d95da9e1-1ba8-4e67-8ade-23ddceab550a"));
+    const result = yield db.select().from(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.id, id));
     if (!result[0]) {
         return null;
     }
@@ -63,7 +80,7 @@ const addUsers = () => __awaiter(void 0, void 0, void 0, function* () {
             .set({
             dateTime: dateTimes,
         })
-            .where((0, drizzle_orm_1.eq)(schema_1.users.id, "d95da9e1-1ba8-4e67-8ade-23ddceab550a"));
+            .where((0, drizzle_orm_1.eq)(schema_1.users.id, id));
         return;
     }
     yield db
@@ -73,7 +90,7 @@ const addUsers = () => __awaiter(void 0, void 0, void 0, function* () {
             ? [...result[0].dateTime, format]
             : [format],
     })
-        .where((0, drizzle_orm_1.eq)(schema_1.users.id, "d95da9e1-1ba8-4e67-8ade-23ddceab550a"));
+        .where((0, drizzle_orm_1.eq)(schema_1.users.id, id));
     return;
 });
-exports.addUsers = addUsers;
+exports.addAttendences = addAttendences;

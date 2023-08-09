@@ -15,15 +15,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const connect_1 = require("./connect");
 const app = (0, express_1.default)();
-const port = 8080;
+const port = process.env.PORT;
 app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const allUsers = yield (0, connect_1.getUsers)();
     res.send(allUsers);
 }));
-app.get("/add", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, connect_1.addUsers)();
+app.post("/add-user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { fullName, phone } = req.body;
+    try {
+        yield (0, connect_1.addUser)({
+            //   fullName: fullName,
+            //   phone: phone,
+            fullName: "Carlos Michael Andrea Snow",
+            phone: "0500000000",
+        });
+        res.send("PASSED");
+        return;
+    }
+    catch (e) {
+        console.log(e.message);
+        res.send(e.message);
+        return;
+    }
+}));
+app.post("/add-attendence", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.body;
+    //   await addAttendences(id);
+    yield (0, connect_1.addAttendences)("bee1615d-4e02-4f61-9323-d84567aa1ba0");
     const allUsers = yield (0, connect_1.getUsers)();
     res.send(allUsers);
+}));
+app.get("/find-user/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    //   const user = await getUser(id);
+    const user = yield (0, connect_1.getUser)("bee1615d-4e02-4f61-9323-d84567aa1ba0");
+    res.send(user);
 }));
 app.listen(port, () => {
     console.log(`listening on http://localhost:${port}`);

@@ -1,8 +1,8 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { users } from "./schema";
+import { users, user } from "./schema";
 import { config } from "dotenv";
-import { eq } from "drizzle-orm";
+import { eq, not } from "drizzle-orm";
 config();
 const connect = () => {
   const client = postgres(process.env.DB_URL!);
@@ -11,15 +11,35 @@ const connect = () => {
 };
 const getUsers = async () => {
   const db = connect();
-  //   await db.insert(users).values({
-  //     phone: "0500000000",
-  //     fullName: "Jaafar",
-  //   });
   const allUsers = await db.select().from(users);
   return allUsers;
 };
 
-const addUsers = async () => {
+const getUser = async (id: string) => {
+  const db = connect();
+  const user = await db.select().from(users).where(eq(users.id, id));
+  return user;
+};
+
+const addUser = async (user: user) => {
+  if (user.fullName.split(" ").length < 4) {
+    throw new Error("Enter Your Full Name (4 Names At Least)");
+  }
+  if (user.phone.length !== 10) {
+    throw new Error("Enter Your Phone Number (10 Characters long)");
+  }
+  const db = connect();
+  await db
+    .insert(users)
+    .values({
+      fullName: user.fullName,
+      phone: user.phone,
+      dateTime: null,
+    })
+    .onConflictDoNothing({ target: users.fullName });
+};
+
+const addAttendences = async (id: string) => {
   const date = new Date();
   const hour = date.getHours();
   const min =
@@ -32,10 +52,7 @@ const addUsers = async () => {
     return format.includes(time.split("-")[0]);
   };
   const db = connect();
-  const result = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, "d95da9e1-1ba8-4e67-8ade-23ddceab550a"));
+  const result = await db.select().from(users).where(eq(users.id, id));
   if (!result[0]) {
     return null;
   }
@@ -48,7 +65,7 @@ const addUsers = async () => {
       .set({
         dateTime: dateTimes,
       })
-      .where(eq(users.id, "d95da9e1-1ba8-4e67-8ade-23ddceab550a"));
+      .where(eq(users.id, id));
     return;
   }
   await db
@@ -59,8 +76,8 @@ const addUsers = async () => {
           ? [...result[0].dateTime!, format]
           : [format],
     })
-    .where(eq(users.id, "d95da9e1-1ba8-4e67-8ade-23ddceab550a"));
+    .where(eq(users.id, id));
   return;
 };
 
-export { getUsers, addUsers };
+export { getUsers, addAttendences, addUser, getUser };
