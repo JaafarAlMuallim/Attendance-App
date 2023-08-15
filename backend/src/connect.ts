@@ -1,8 +1,9 @@
+import { compareSync, hash } from "bcrypt";
+import { config } from "dotenv";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { users, user } from "./schema";
-import { config } from "dotenv";
-import { eq, not } from "drizzle-orm";
+import { Org, User, orgs, users } from "./schema";
 config();
 const connect = () => {
   const client = postgres(process.env.DB_URL!);
@@ -21,7 +22,7 @@ const getUser = async (id: string) => {
   return user;
 };
 
-const addUser = async (user: user) => {
+const addUser = async (user: User) => {
   if (user.fullName.split(" ").length < 4) {
     throw new Error("Enter Your Full Name (4 Names At Least)");
   }
@@ -38,7 +39,36 @@ const addUser = async (user: user) => {
     })
     .onConflictDoNothing({ target: users.fullName });
 };
+const addOrg = async (org: Org) => {
+  if (org.name!.split(" ").length < 1) {
+    throw new Error("Enter Your Orgnaization Name (At least 1 letter)");
+  }
+  if (!org.email.includes("@") && !org.email.includes(".com")) {
+    throw new Error("Enter Your Organization Email Address Correctly");
+  }
+  const db = connect();
+  const hashedPass = await hash(org.password, 10);
+  await db
+    .insert(orgs)
+    .values({
+      name: org.name!,
+      email: org.email,
+      password: hashedPass,
+    })
+    .onConflictDoNothing({ target: orgs.email });
+};
+const getOrg = async (org: Org) => {
+  const db = connect();
 
+  const foundOrg = await db
+    .select()
+    .from(orgs)
+    .where(eq(orgs.email, org.email));
+  if (compareSync(org.password, foundOrg[0].password!)) {
+    return foundOrg[0];
+  }
+  return [];
+};
 const addAttendences = async (id: string) => {
   const date = new Date();
   const hour = date.getHours();
@@ -80,4 +110,4 @@ const addAttendences = async (id: string) => {
   return;
 };
 
-export { getUsers, addAttendences, addUser, getUser };
+export { addAttendences, addOrg, addUser, getOrg, getUser, getUsers };

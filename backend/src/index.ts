@@ -1,8 +1,16 @@
+import cors from "cors";
 import express, { Request, Response } from "express";
-import { getUsers, addAttendences, addUser, getUser } from "./connect";
-import { config } from "dotenv";
+import {
+  addAttendences,
+  addOrg,
+  addUser,
+  getOrg,
+  getUser,
+  getUsers,
+} from "./connect";
 const app = express();
-
+app.use(cors());
+app.use(express.json());
 const port = process.env.PORT;
 app.get("/", async (req: Request, res: Response) => {
   const allUsers = await getUsers();
@@ -41,6 +49,21 @@ app.get("/find-user/:id", async (req: Request, res: Response) => {
   res.send(user);
 });
 
+app.get("/all-students", async (req: Request, res: Response) => {
+  const students = await getUsers();
+  res.send(students);
+});
+app.post("/signup", async (req: Request, res: Response) => {
+  const { name, email, password } = req.body;
+  await addOrg({ name, email, password });
+  const org = await getOrg({ email, password });
+  res.send(org);
+});
+app.post("/signin", async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const org = await getOrg({ email, password });
+  res.send(org);
+});
 app.listen(port, () => {
   console.log(`listening on http://localhost:${port}`);
 });

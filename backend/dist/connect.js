@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUser = exports.addUser = exports.addAttendences = exports.getUsers = void 0;
+exports.getUsers = exports.getUser = exports.getOrg = exports.addUser = exports.addOrg = exports.addAttendences = void 0;
+const bcrypt_1 = require("bcrypt");
+const dotenv_1 = require("dotenv");
+const drizzle_orm_1 = require("drizzle-orm");
 const postgres_js_1 = require("drizzle-orm/postgres-js");
 const postgres_1 = __importDefault(require("postgres"));
 const schema_1 = require("./schema");
-const dotenv_1 = require("dotenv");
-const drizzle_orm_1 = require("drizzle-orm");
 (0, dotenv_1.config)();
 const connect = () => {
     const client = (0, postgres_1.default)(process.env.DB_URL);
@@ -54,6 +55,37 @@ const addUser = (user) => __awaiter(void 0, void 0, void 0, function* () {
         .onConflictDoNothing({ target: schema_1.users.fullName });
 });
 exports.addUser = addUser;
+const addOrg = (org) => __awaiter(void 0, void 0, void 0, function* () {
+    if (org.name.split(" ").length < 1) {
+        throw new Error("Enter Your Orgnaization Name (At least 1 letter)");
+    }
+    if (!org.email.includes("@") && !org.email.includes(".com")) {
+        throw new Error("Enter Your Organization Email Address Correctly");
+    }
+    const db = connect();
+    const hashedPass = yield (0, bcrypt_1.hash)(org.password, 10);
+    yield db
+        .insert(schema_1.orgs)
+        .values({
+        name: org.name,
+        email: org.email,
+        password: hashedPass,
+    })
+        .onConflictDoNothing({ target: schema_1.orgs.email });
+});
+exports.addOrg = addOrg;
+const getOrg = (org) => __awaiter(void 0, void 0, void 0, function* () {
+    const db = connect();
+    const foundOrg = yield db
+        .select()
+        .from(schema_1.orgs)
+        .where((0, drizzle_orm_1.eq)(schema_1.orgs.email, org.email));
+    if ((0, bcrypt_1.compareSync)(org.password, foundOrg[0].password)) {
+        return foundOrg[0];
+    }
+    return [];
+});
+exports.getOrg = getOrg;
 const addAttendences = (id) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const date = new Date();
