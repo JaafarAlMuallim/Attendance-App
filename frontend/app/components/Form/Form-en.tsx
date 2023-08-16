@@ -1,11 +1,16 @@
 "use client";
 
 import { useToast } from "@/components/ui/use-toast";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ChangeEvent, FormEvent, useState } from "react";
 
 export default function FormEN(props: { mode: "signup" | "signin" }) {
+  const { data: session } = useSession();
+  if (session !== null) {
+    redirect("/");
+  }
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");

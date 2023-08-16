@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { LangContext } from "@/store/lang-store";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useContext } from "react";
@@ -14,7 +14,6 @@ import { useContext } from "react";
 export default function NavbarEN() {
   const { data: session } = useSession();
   const langContext = useContext(LangContext);
-
   return (
     <nav className="bg-slate-700">
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
@@ -71,7 +70,11 @@ export default function NavbarEN() {
                 >
                   <span className="sr-only">Open user menu</span>
 
-                  <span className="text-white underline p-3">Settings</span>
+                  <span className="text-white underline p-3">
+                    {session && session.user !== null
+                      ? session.user?.name
+                      : "Settings"}
+                  </span>
                 </PopoverTrigger>
                 <PopoverContent
                   className={`origin-top-right absolute 
@@ -90,16 +93,18 @@ export default function NavbarEN() {
                     All Students
                   </Link>
                   {session === null ? (
-                    <button
+                    <Link
                       className="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700"
-                      onClick={() => signIn()}
+                      href={"/auth/signin"}
                     >
                       Sign In
-                    </button>
+                    </Link>
                   ) : (
                     <button
                       className="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700"
-                      onClick={() => signOut()}
+                      onClick={() =>
+                        signOut({ redirect: true, callbackUrl: "/" })
+                      }
                     >
                       Sign Out
                     </button>
