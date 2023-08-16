@@ -3,4 +3,6 @@ export default interface User {
   fullName: string;
   phone: string;
   dateTime?: string;
+  type?: string;
+  grade?: string;
 }
