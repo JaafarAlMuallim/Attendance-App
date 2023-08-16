@@ -7,39 +7,23 @@ import {
   getOrg,
   getUser,
   getUsers,
+  getUsersByOrg,
 } from "./connect";
+import { User } from "./schema";
 const app = express();
 app.use(cors());
 app.use(express.json());
 const port = process.env.PORT;
 app.get("/", async (req: Request, res: Response) => {
-  const allUsers = await getUsers();
+  const { email } = req.body;
+  const allUsers = await getUsers(email);
   res.send(allUsers);
 });
 
-app.post("/add-user", async (req: Request, res: Response) => {
-  const { fullName, phone } = req.body;
-  try {
-    await addUser({
-      //   fullName: fullName,
-      //   phone: phone,
-      fullName: "Carlos Michael Andrea Snow",
-      phone: "0500000000",
-    });
-    res.send("PASSED");
-    return;
-  } catch (e: any) {
-    console.log(e.message);
-    res.send(e.message);
-    return;
-  }
-});
-
 app.post("/add-attendence", async (req: Request, res: Response) => {
-  const { id } = req.body;
-  //   await addAttendences(id);
-  await addAttendences("bee1615d-4e02-4f61-9323-d84567aa1ba0");
-  const allUsers = await getUsers();
+  const { email } = req.body;
+  addAttendences(email);
+  const allUsers = await getUsers(email);
   res.send(allUsers);
 });
 app.get("/find-user/:id", async (req: Request, res: Response) => {
@@ -49,20 +33,34 @@ app.get("/find-user/:id", async (req: Request, res: Response) => {
   res.send(user);
 });
 
-app.get("/all-students", async (req: Request, res: Response) => {
-  const students = await getUsers();
+app.get("/all-students/:email", async (req: Request, res: Response) => {
+  const { email } = req.params;
+  const students = await getUsers(email);
   res.send(students);
 });
 app.post("/signup", async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
   await addOrg({ name, email, password });
   const org = await getOrg({ email, password });
-  res.send(org);
+  res.send(org[0]);
 });
 app.post("/signin", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const org = await getOrg({ email, password });
-  res.send(org);
+  res.send(org[0]);
+});
+app.post("/reg-user/:org", async (req: Request, res: Response) => {
+  const { org } = req.params;
+  const { fullName, phone, grade, type } = req.body;
+  const user: User = {
+    fullName,
+    phone,
+    grade,
+    type,
+  };
+  await addUser({ user, org });
+  const users = await getUsersByOrg(org);
+  res.send(users);
 });
 app.listen(port, () => {
   console.log(`listening on http://localhost:${port}`);

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUsers = exports.getUser = exports.getOrg = exports.addUser = exports.addOrg = exports.addAttendences = void 0;
+exports.getUsersByOrg = exports.getUsers = exports.getUser = exports.getOrg = exports.addUser = exports.addOrg = exports.addAttendences = void 0;
 const bcrypt_1 = require("bcrypt");
 const dotenv_1 = require("dotenv");
 const drizzle_orm_1 = require("drizzle-orm");
@@ -25,19 +25,37 @@ const connect = () => {
     const db = (0, postgres_js_1.drizzle)(client);
     return db;
 };
-const getUsers = () => __awaiter(void 0, void 0, void 0, function* () {
+const getUsers = (email) => __awaiter(void 0, void 0, void 0, function* () {
     const db = connect();
-    const allUsers = yield db.select().from(schema_1.users);
+    const org = yield getOrgByEmail(email);
+    const allUsers = yield db.select().from(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.orgId, org.id));
     return allUsers;
 });
 exports.getUsers = getUsers;
+const getOrgByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const db = connect();
+    const org = yield db
+        .select()
+        .from(schema_1.orgs)
+        .where((0, drizzle_orm_1.eq)(schema_1.orgs.email, email.toLowerCase()));
+    return org[0];
+});
+const getUsersByOrg = (orgId) => __awaiter(void 0, void 0, void 0, function* () {
+    const db = connect();
+    const org = yield db.select().from(schema_1.orgs).where((0, drizzle_orm_1.eq)(schema_1.orgs.id, orgId));
+    return org[0];
+});
+exports.getUsersByOrg = getUsersByOrg;
 const getUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const db = connect();
     const user = yield db.select().from(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.id, id));
     return user;
 });
 exports.getUser = getUser;
-const addUser = (user) => __awaiter(void 0, void 0, void 0, function* () {
+const addUser = ({ user, org }) => __awaiter(void 0, void 0, void 0, function* () {
+    if (org === null) {
+        throw new Error("No Associated Org With The Form, Check With Your instituation");
+    }
     if (user.fullName.split(" ").length < 4) {
         throw new Error("Enter Your Full Name (4 Names At Least)");
     }
@@ -51,6 +69,8 @@ const addUser = (user) => __awaiter(void 0, void 0, void 0, function* () {
         fullName: user.fullName,
         phone: user.phone,
         dateTime: null,
+        grade: user.grade,
+        type: user.type,
     })
         .onConflictDoNothing({ target: schema_1.users.fullName });
 });
@@ -68,7 +88,7 @@ const addOrg = (org) => __awaiter(void 0, void 0, void 0, function* () {
         .insert(schema_1.orgs)
         .values({
         name: org.name,
-        email: org.email,
+        email: org.email.toLowerCase(),
         password: hashedPass,
     })
         .onConflictDoNothing({ target: schema_1.orgs.email });
@@ -81,7 +101,7 @@ const getOrg = (org) => __awaiter(void 0, void 0, void 0, function* () {
         .from(schema_1.orgs)
         .where((0, drizzle_orm_1.eq)(schema_1.orgs.email, org.email));
     if ((0, bcrypt_1.compareSync)(org.password, foundOrg[0].password)) {
-        return foundOrg[0];
+        return foundOrg;
     }
     return [];
 });

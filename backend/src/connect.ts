@@ -10,10 +10,25 @@ const connect = () => {
   const db = drizzle(client);
   return db;
 };
-const getUsers = async () => {
+const getUsers = async (email: string) => {
   const db = connect();
-  const allUsers = await db.select().from(users);
+  const org = await getOrgByEmail(email);
+  const allUsers = await db.select().from(users).where(eq(users.orgId, org.id));
   return allUsers;
+};
+const getOrgByEmail = async (email: string) => {
+  const db = connect();
+  const org = await db
+    .select()
+    .from(orgs)
+    .where(eq(orgs.email, email!.toLowerCase()));
+  return org[0];
+};
+
+const getUsersByOrg = async (orgId: string) => {
+  const db = connect();
+  const org = await db.select().from(orgs).where(eq(orgs.id, orgId));
+  return org[0];
 };
 
 const getUser = async (id: string) => {
@@ -22,7 +37,12 @@ const getUser = async (id: string) => {
   return user;
 };
 
-const addUser = async (user: User) => {
+const addUser = async ({ user, org }: { user: User; org: string }) => {
+  if (org === null) {
+    throw new Error(
+      "No Associated Org With The Form, Check With Your instituation"
+    );
+  }
   if (user.fullName.split(" ").length < 4) {
     throw new Error("Enter Your Full Name (4 Names At Least)");
   }
@@ -36,6 +56,8 @@ const addUser = async (user: User) => {
       fullName: user.fullName,
       phone: user.phone,
       dateTime: null,
+      grade: user.grade,
+      type: user.type,
     })
     .onConflictDoNothing({ target: users.fullName });
 };
@@ -52,7 +74,7 @@ const addOrg = async (org: Org) => {
     .insert(orgs)
     .values({
       name: org.name!,
-      email: org.email,
+      email: org.email.toLowerCase(),
       password: hashedPass,
     })
     .onConflictDoNothing({ target: orgs.email });
@@ -65,7 +87,7 @@ const getOrg = async (org: Org) => {
     .from(orgs)
     .where(eq(orgs.email, org.email));
   if (compareSync(org.password, foundOrg[0].password!)) {
-    return foundOrg[0];
+    return foundOrg;
   }
   return [];
 };
@@ -110,4 +132,12 @@ const addAttendences = async (id: string) => {
   return;
 };
 
-export { addAttendences, addOrg, addUser, getOrg, getUser, getUsers };
+export {
+  addAttendences,
+  addOrg,
+  addUser,
+  getOrg,
+  getUser,
+  getUsers,
+  getUsersByOrg,
+};

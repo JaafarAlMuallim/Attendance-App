@@ -20,32 +20,14 @@ app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 const port = process.env.PORT;
 app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const allUsers = yield (0, connect_1.getUsers)();
+    const { email } = req.body;
+    const allUsers = yield (0, connect_1.getUsers)(email);
     res.send(allUsers);
 }));
-app.post("/add-user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { fullName, phone } = req.body;
-    try {
-        yield (0, connect_1.addUser)({
-            //   fullName: fullName,
-            //   phone: phone,
-            fullName: "Carlos Michael Andrea Snow",
-            phone: "0500000000",
-        });
-        res.send("PASSED");
-        return;
-    }
-    catch (e) {
-        console.log(e.message);
-        res.send(e.message);
-        return;
-    }
-}));
 app.post("/add-attendence", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.body;
-    //   await addAttendences(id);
-    yield (0, connect_1.addAttendences)("bee1615d-4e02-4f61-9323-d84567aa1ba0");
-    const allUsers = yield (0, connect_1.getUsers)();
+    const { email } = req.body;
+    (0, connect_1.addAttendences)(email);
+    const allUsers = yield (0, connect_1.getUsers)(email);
     res.send(allUsers);
 }));
 app.get("/find-user/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -54,20 +36,34 @@ app.get("/find-user/:id", (req, res) => __awaiter(void 0, void 0, void 0, functi
     const user = yield (0, connect_1.getUser)("bee1615d-4e02-4f61-9323-d84567aa1ba0");
     res.send(user);
 }));
-app.get("/all-students", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const students = yield (0, connect_1.getUsers)();
+app.get("/all-students/:email", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.params;
+    const students = yield (0, connect_1.getUsers)(email);
     res.send(students);
 }));
 app.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, password } = req.body;
     yield (0, connect_1.addOrg)({ name, email, password });
     const org = yield (0, connect_1.getOrg)({ email, password });
-    res.send(org);
+    res.send(org[0]);
 }));
 app.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const org = yield (0, connect_1.getOrg)({ email, password });
-    res.send(org);
+    res.send(org[0]);
+}));
+app.post("/reg-user/:org", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { org } = req.params;
+    const { fullName, phone, grade, type } = req.body;
+    const user = {
+        fullName,
+        phone,
+        grade,
+        type,
+    };
+    yield (0, connect_1.addUser)({ user, org });
+    const users = yield (0, connect_1.getUsersByOrg)(org);
+    res.send(users);
 }));
 app.listen(port, () => {
     console.log(`listening on http://localhost:${port}`);
