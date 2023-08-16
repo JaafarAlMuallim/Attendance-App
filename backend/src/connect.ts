@@ -25,9 +25,9 @@ const getOrgByEmail = async (email: string) => {
   return org[0];
 };
 
-const getUsersByOrg = async (orgId: string) => {
+const getUsersByOrg = async (orgEmail: string) => {
   const db = connect();
-  const org = await db.select().from(orgs).where(eq(orgs.id, orgId));
+  const org = await db.select().from(orgs).where(eq(orgs.email, orgEmail));
   return org[0];
 };
 
@@ -49,6 +49,7 @@ const addUser = async ({ user, org }: { user: User; org: string }) => {
   if (user.phone.length !== 10) {
     throw new Error("Enter Your Phone Number (10 Characters long)");
   }
+  const foundOrg = await getOrgByEmail(org);
   const db = connect();
   await db
     .insert(users)
@@ -58,6 +59,7 @@ const addUser = async ({ user, org }: { user: User; org: string }) => {
       dateTime: null,
       grade: user.grade,
       type: user.type,
+      orgId: foundOrg.id,
     })
     .onConflictDoNothing({ target: users.fullName });
 };

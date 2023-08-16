@@ -40,9 +40,9 @@ const getOrgByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () 
         .where((0, drizzle_orm_1.eq)(schema_1.orgs.email, email.toLowerCase()));
     return org[0];
 });
-const getUsersByOrg = (orgId) => __awaiter(void 0, void 0, void 0, function* () {
+const getUsersByOrg = (orgEmail) => __awaiter(void 0, void 0, void 0, function* () {
     const db = connect();
-    const org = yield db.select().from(schema_1.orgs).where((0, drizzle_orm_1.eq)(schema_1.orgs.id, orgId));
+    const org = yield db.select().from(schema_1.orgs).where((0, drizzle_orm_1.eq)(schema_1.orgs.email, orgEmail));
     return org[0];
 });
 exports.getUsersByOrg = getUsersByOrg;
@@ -62,6 +62,7 @@ const addUser = ({ user, org }) => __awaiter(void 0, void 0, void 0, function* (
     if (user.phone.length !== 10) {
         throw new Error("Enter Your Phone Number (10 Characters long)");
     }
+    const foundOrg = yield getOrgByEmail(org);
     const db = connect();
     yield db
         .insert(schema_1.users)
@@ -71,6 +72,7 @@ const addUser = ({ user, org }) => __awaiter(void 0, void 0, void 0, function* (
         dateTime: null,
         grade: user.grade,
         type: user.type,
+        orgId: foundOrg.id,
     })
         .onConflictDoNothing({ target: schema_1.users.fullName });
 });

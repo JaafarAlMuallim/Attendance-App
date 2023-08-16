@@ -56,10 +56,10 @@ app.post("/reg-user/:org", (req, res) => __awaiter(void 0, void 0, void 0, funct
     const { org } = req.params;
     const { fullName, phone, grade, type } = req.body;
     const user = {
-        fullName,
-        phone,
-        grade,
-        type,
+        fullName: fullName.trim(),
+        phone: phone.trim(),
+        grade: grade.trim(),
+        type: type.trim(),
     };
     yield (0, connect_1.addUser)({ user, org });
     const users = yield (0, connect_1.getUsersByOrg)(org);

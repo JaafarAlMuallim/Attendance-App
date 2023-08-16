@@ -51,12 +51,17 @@ app.post("/signin", async (req: Request, res: Response) => {
 });
 app.post("/reg-user/:org", async (req: Request, res: Response) => {
   const { org } = req.params;
-  const { fullName, phone, grade, type } = req.body;
+  const { fullName, phone, grade, type } = req.body as {
+    fullName: string;
+    phone: string;
+    grade: string;
+    type: string;
+  };
   const user: User = {
-    fullName,
-    phone,
-    grade,
-    type,
+    fullName: fullName.trim(),
+    phone: phone.trim(),
+    grade: grade.trim(),
+    type: type.trim(),
   };
   await addUser({ user, org });
   const users = await getUsersByOrg(org);
