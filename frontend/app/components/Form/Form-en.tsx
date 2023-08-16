@@ -14,6 +14,7 @@ export default function FormEN(props: { mode: "signup" | "signin" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const handleEmail = (e: ChangeEvent<HTMLInputElement>) => {
@@ -27,15 +28,18 @@ export default function FormEN(props: { mode: "signup" | "signin" }) {
   };
   const signInHandler = async (e: FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     await signIn("credentials", {
       email: email,
       password: password,
       redirect: true,
       callbackUrl: "/",
     });
+    setLoading(false);
   };
   const signUpHandler = async (e: FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     const res = await fetch("http://localhost:8080/signup", {
       method: "POST",
       body: JSON.stringify({
@@ -60,6 +64,7 @@ export default function FormEN(props: { mode: "signup" | "signin" }) {
       title: "Account Created",
       description: "Orgnaization Account Created Successfully",
     });
+    setLoading(false);
   };
 
   return (
@@ -114,7 +119,11 @@ export default function FormEN(props: { mode: "signup" | "signin" }) {
               props.mode === "signin" ? signInHandler(e) : signUpHandler(e);
             }}
           >
-            {props.mode === "signin" ? `Sign In` : `Sign Up`}
+            {loading
+              ? "Submitting..."
+              : props.mode === "signin"
+              ? `Sign In`
+              : `Sign Up`}
           </button>
           {props.mode === "signin" ? (
             <Link

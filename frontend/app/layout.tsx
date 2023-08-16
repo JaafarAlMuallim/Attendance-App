@@ -1,4 +1,5 @@
 // import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/toaster";
 import { LangProvider } from "@/store/lang-store";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -19,16 +20,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <LangProvider>
-      <html lang="en">
+    <html lang="en">
+      <LangProvider>
         <AuthProvider>
           <body className={`${inter.className} bg-gray-200 text-black`}>
             <Header />
-            {children}
+            <main>{children}</main>
+            <Toaster />
           </body>
         </AuthProvider>
-        {/* <Toaster /> */}
-      </html>
-    </LangProvider>
+      </LangProvider>
+    </html>
   );
 }
