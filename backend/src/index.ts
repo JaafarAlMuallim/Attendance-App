@@ -4,10 +4,10 @@ import {
   addAttendences,
   addOrg,
   addUser,
+  checkTodayAttendence,
   deleteUser,
   getOrg,
   getOrgByEmail,
-  getUser,
   getUsers,
   getUsersByOrg,
 } from "./connect";
@@ -18,21 +18,24 @@ app.use(express.json());
 const port = process.env.PORT;
 app.get("/", async (req: Request, res: Response) => {
   const { email } = req.body;
-  const allUsers = await getUsers(email);
+  const org = await getOrgByEmail(email);
+  const allUsers = await getUsers(org.id);
   res.send(allUsers);
 });
-
-app.get("/find-user/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  //   const user = await getUser(id);
-  const user = await getUser("bee1615d-4e02-4f61-9323-d84567aa1ba0");
-  res.send(user);
-});
-
 app.get("/all-students", async (req: Request, res: Response) => {
   const email = req.query.email as string;
-  const students = await getUsers(email);
+  console.log(email);
+  const org = await getOrgByEmail(email);
+  const students = await getUsers(org.id);
   res.send(students);
+});
+app.get("/check-attendence/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const email = req.query.email! as string;
+  const org = await getOrgByEmail(email);
+  const attended = await checkTodayAttendence(id, org.id);
+  console.log(attended);
+  res.send({ attended });
 });
 app.post("/signup", async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
@@ -43,15 +46,16 @@ app.post("/signup", async (req: Request, res: Response) => {
 app.post("/signin", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const org = await getOrg({ email, password });
-  // res.send(org[0]);
+  res.send({ status: 200, message: "success" });
 });
 app.post("/delete-user/:id", async (req: Request, res: Response) => {
   const email: string = req.query.email as string;
   const { id } = req.params;
-  await deleteUser(id);
+  const org = await getOrgByEmail(email);
+  await deleteUser(id, org);
   res.send({ status: 200, message: "success" });
 });
-app.post("/attend-studnet/:id", async (req: Request, res: Response) => {
+app.post("/attend-user/:id", async (req: Request, res: Response) => {
   const email: string = req.query.email as string;
   const { id } = req.params;
   const org = await getOrgByEmail(email);

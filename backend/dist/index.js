@@ -21,25 +21,24 @@ app.use(express_1.default.json());
 const port = process.env.PORT;
 app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.body;
-    const allUsers = yield (0, connect_1.getUsers)(email);
+    const org = yield (0, connect_1.getOrgByEmail)(email);
+    const allUsers = yield (0, connect_1.getUsers)(org.id);
     res.send(allUsers);
 }));
-app.post("/add-attendence", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email } = req.body;
-    (0, connect_1.addAttendences)(email);
-    const allUsers = yield (0, connect_1.getUsers)(email);
-    res.send(allUsers);
-}));
-app.get("/find-user/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    //   const user = await getUser(id);
-    const user = yield (0, connect_1.getUser)("bee1615d-4e02-4f61-9323-d84567aa1ba0");
-    res.send(user);
-}));
-app.get("/all-students/:email", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email } = req.params;
-    const students = yield (0, connect_1.getUsers)(email);
+app.get("/all-students", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const email = req.query.email;
+    console.log(email);
+    const org = yield (0, connect_1.getOrgByEmail)(email);
+    const students = yield (0, connect_1.getUsers)(org.id);
     res.send(students);
+}));
+app.get("/check-attendence/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const email = req.query.email;
+    const org = yield (0, connect_1.getOrgByEmail)(email);
+    const attended = yield (0, connect_1.checkTodayAttendence)(id, org.id);
+    console.log(attended);
+    res.send({ attended });
 }));
 app.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, password } = req.body;
@@ -50,7 +49,21 @@ app.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 app.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const org = yield (0, connect_1.getOrg)({ email, password });
-    res.send(org[0]);
+    res.send({ status: 200, message: "success" });
+}));
+app.post("/delete-user/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const email = req.query.email;
+    const { id } = req.params;
+    const org = yield (0, connect_1.getOrgByEmail)(email);
+    yield (0, connect_1.deleteUser)(id, org);
+    res.send({ status: 200, message: "success" });
+}));
+app.post("/attend-user/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const email = req.query.email;
+    const { id } = req.params;
+    const org = yield (0, connect_1.getOrgByEmail)(email);
+    yield (0, connect_1.addAttendences)(id, org.id);
+    res.send({ status: 200, message: "success" });
 }));
 app.post("/reg-user/:org", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { org } = req.params;

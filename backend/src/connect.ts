@@ -10,15 +10,14 @@ const connect = () => {
   const db = drizzle(client);
   return db;
 };
-const getUsers = async (email: string) => {
+const getUsers = async (orgId: string) => {
   const db = connect();
-  const org = await getOrgByEmail(email);
-  const allUsers = await db.select().from(users).where(eq(users.orgId, org.id));
+  const allUsers = await db.select().from(users).where(eq(users.orgId, orgId));
   return allUsers;
 };
-const deleteUser = async (id: string) => {
+const deleteUser = async (id: string, org: Org) => {
   const db = connect();
-  await db.delete(users).where(eq(users.id, id));
+  await db.delete(users).where(and(eq(users.id, id), eq(users.orgId, org.id!)));
 };
 const getOrgByEmail = async (email: string) => {
   const db = connect();
@@ -34,7 +33,6 @@ const getUsersByOrg = async (orgEmail: string) => {
   const org = await db.select().from(orgs).where(eq(orgs.email, orgEmail));
   return org[0];
 };
-
 const getUser = async (id: string) => {
   const db = connect();
   const user = await db.select().from(users).where(eq(users.id, id));
@@ -97,6 +95,26 @@ const getOrg = async (org: Org) => {
   }
   return [];
 };
+const checkTodayAttendence = async (id: string, orgId: string) => {
+  const date = new Date();
+  const hour = date.getHours();
+  const min =
+    date.getMinutes() >= 10 ? date.getMinutes() : `0${date.getMinutes()}`;
+  const day = date.getDate();
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const format = `${day}/${month}/${year} - ${hour}:${min}`;
+  const sameDate = (time: string) => {
+    return format.includes(time.split("-")[0]);
+  };
+  const db = connect();
+  const result = await db
+    .select()
+    .from(users)
+    .where(and(eq(users.id, id), eq(users.orgId, orgId)));
+
+  return result[0]?.dateTime?.some(sameDate);
+};
 const addAttendences = async (id: string, orgId: string) => {
   const date = new Date();
   const hour = date.getHours();
@@ -145,8 +163,10 @@ export {
   addAttendences,
   addOrg,
   addUser,
+  checkTodayAttendence,
   deleteUser,
   getOrg,
+  getOrgByEmail,
   getUser,
   getUsers,
   getUsersByOrg,
