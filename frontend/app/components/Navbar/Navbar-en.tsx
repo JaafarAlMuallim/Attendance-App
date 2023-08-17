@@ -15,7 +15,7 @@ export default function NavbarEN() {
   const { data: session } = useSession();
   const langContext = useContext(LangContext);
   return (
-    <nav className="bg-slate-700">
+    <nav className="bg-sky-700">
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-16">
           <Link href={"/"} className="text-xl text-white">
@@ -66,11 +66,11 @@ export default function NavbarEN() {
               <Popover>
                 <PopoverTrigger
                   aria-controls="user-menu"
-                  className="max-w-xs bg-slate-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-700 focus:ring-white"
+                  className="max-w-xs bg-sky-400 bg-opacity-90 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-700 focus:ring-white"
                 >
                   <span className="sr-only">Open user menu</span>
 
-                  <span className="text-white underline p-3">
+                  <span className="text-black underline p-3">
                     {session && session.user !== null
                       ? session.user?.name
                       : "Settings"}

@@ -3,32 +3,16 @@
 import Card from "@/app/components/Card/Card";
 import User from "@/types/user";
 import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AllStudents() {
   const [students, setStudents] = useState<User[]>([]);
   const { data: session } = useSession();
-  const getData = useCallback(async () => {
-    const res = await fetch(
-      `http://localhost:8080/all-students?email=${session!.user?.email}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: session?.user?.email,
-        }),
-      }
-    );
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
-    }
-    console.log("success");
-    const data = await res.json();
-    console.log(data);
-  }, [session]);
 
   useEffect(() => {
+    if (!session?.user?.email) {
+      return;
+    }
     const res = fetch(
       `http://localhost:8080/all-students/${session?.user?.email}`,
       {
@@ -53,7 +37,11 @@ export default function AllStudents() {
         {students.map((student) => {
           return (
             <li key={student.id}>
-              <Card key={student.id} user={student} />
+              <Card
+                key={student.id}
+                user={student}
+                email={session?.user!.email!}
+              />
             </li>
           );
         })}
