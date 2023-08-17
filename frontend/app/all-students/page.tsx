@@ -47,10 +47,17 @@ export default function AllStudents() {
       .catch((e) => console.log(e));
   }, [session]);
   return (
-    <div className="flex flex-col justify-center items-center overflow-scroll">
-      {students.map((student) => {
-        return <Card key={student.id} user={student} />;
-      })}
+    // <div className="flex flex-col justify-center items-center overflow-scroll">
+    <div className="flex flex-col justify-center items-center">
+      <ul>
+        {students.map((student) => {
+          return (
+            <li key={student.id}>
+              <Card key={student.id} user={student} />
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
