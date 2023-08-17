@@ -4,7 +4,9 @@ import {
   addAttendences,
   addOrg,
   addUser,
+  deleteUser,
   getOrg,
+  getOrgByEmail,
   getUser,
   getUsers,
   getUsersByOrg,
@@ -20,12 +22,6 @@ app.get("/", async (req: Request, res: Response) => {
   res.send(allUsers);
 });
 
-app.post("/add-attendence", async (req: Request, res: Response) => {
-  const { email } = req.body;
-  addAttendences(email);
-  const allUsers = await getUsers(email);
-  res.send(allUsers);
-});
 app.get("/find-user/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   //   const user = await getUser(id);
@@ -33,8 +29,8 @@ app.get("/find-user/:id", async (req: Request, res: Response) => {
   res.send(user);
 });
 
-app.get("/all-students/:email", async (req: Request, res: Response) => {
-  const { email } = req.params;
+app.get("/all-students", async (req: Request, res: Response) => {
+  const email = req.query.email as string;
   const students = await getUsers(email);
   res.send(students);
 });
@@ -47,7 +43,20 @@ app.post("/signup", async (req: Request, res: Response) => {
 app.post("/signin", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const org = await getOrg({ email, password });
-  res.send(org[0]);
+  // res.send(org[0]);
+});
+app.post("/delete-user/:id", async (req: Request, res: Response) => {
+  const email: string = req.query.email as string;
+  const { id } = req.params;
+  await deleteUser(id);
+  res.send({ status: 200, message: "success" });
+});
+app.post("/attend-studnet/:id", async (req: Request, res: Response) => {
+  const email: string = req.query.email as string;
+  const { id } = req.params;
+  const org = await getOrgByEmail(email);
+  await addAttendences(id, org.id);
+  res.send({ status: 200, message: "success" });
 });
 app.post("/reg-user/:org", async (req: Request, res: Response) => {
   const { org } = req.params;

@@ -1,6 +1,6 @@
 import { compareSync, hash } from "bcrypt";
 import { config } from "dotenv";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { Org, User, orgs, users } from "./schema";
@@ -15,6 +15,10 @@ const getUsers = async (email: string) => {
   const org = await getOrgByEmail(email);
   const allUsers = await db.select().from(users).where(eq(users.orgId, org.id));
   return allUsers;
+};
+const deleteUser = async (id: string) => {
+  const db = connect();
+  await db.delete(users).where(eq(users.id, id));
 };
 const getOrgByEmail = async (email: string) => {
   const db = connect();
@@ -93,7 +97,7 @@ const getOrg = async (org: Org) => {
   }
   return [];
 };
-const addAttendences = async (id: string) => {
+const addAttendences = async (id: string, orgId: string) => {
   const date = new Date();
   const hour = date.getHours();
   const min =
@@ -106,7 +110,10 @@ const addAttendences = async (id: string) => {
     return format.includes(time.split("-")[0]);
   };
   const db = connect();
-  const result = await db.select().from(users).where(eq(users.id, id));
+  const result = await db
+    .select()
+    .from(users)
+    .where(and(eq(users.id, id), eq(users.orgId, orgId)));
   if (!result[0]) {
     return null;
   }
@@ -119,7 +126,7 @@ const addAttendences = async (id: string) => {
       .set({
         dateTime: dateTimes,
       })
-      .where(eq(users.id, id));
+      .where(and(eq(users.id, id), eq(users.orgId, orgId)));
     return;
   }
   await db
@@ -130,7 +137,7 @@ const addAttendences = async (id: string) => {
           ? [...result[0].dateTime!, format]
           : [format],
     })
-    .where(eq(users.id, id));
+    .where(and(eq(users.id, id), eq(users.orgId, orgId)));
   return;
 };
 
@@ -138,6 +145,7 @@ export {
   addAttendences,
   addOrg,
   addUser,
+  deleteUser,
   getOrg,
   getUser,
   getUsers,
