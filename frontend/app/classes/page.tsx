@@ -1,19 +1,21 @@
 "use client";
 
+import RadioButtons from "@/app/classes/RadioButtons";
 import Card from "@/app/components/Card/Card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { toast } from "@/components/ui/use-toast";
 import User from "@/types/user";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-
+import { Suspense, useEffect, useState } from "react";
 export default function ClassesPage() {
   const [selectedClass, setClass] = useState("freshman");
   const [users, setUsers] = useState<User[]>([]);
   const { data: session } = useSession();
   const email = session?.user?.email;
   useEffect(() => {
-    const res = fetch(`http://localhost:8080/all-students/${email}`, {
+    if (!email) {
+      return;
+    }
+    const res = fetch(`http://localhost:8080/all-students?email=${email}`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -32,37 +34,47 @@ export default function ClassesPage() {
     setClass(value.toLowerCase());
   };
 
+  const deleteUser = async (id: string) => {
+    const res = await fetch(
+      `http://localhost:8080/delete-user/${id}?email=${email}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      setUsers((prev) => prev.filter((user) => user.id !== id));
+      toast({
+        title: "Success",
+        description: "User has been Deleted",
+        className: "bg-green-700 text-white",
+        duration: 4000,
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center mt-5">
-      <RadioGroup
-        defaultValue="Freshman"
-        className="flex flex-row"
-        onValueChange={(value) => onClassChange(value)}
-      >
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="Freshman" id="freshman" />
-          <Label htmlFor="freshman">Freshman</Label>
+      <RadioButtons
+        onClassChange={onClassChange}
+        selectedClass={selectedClass}
+      />
+      <Suspense fallback={<p>Loading..</p>}>
+        <div className="flex flex-col w-full">
+          <ul>
+            {users
+              .filter((user) => user.grade === selectedClass)
+              .map((user) => (
+                <li key={user.id}>
+                  <Card user={user} email={email!} deleteUser={deleteUser} />
+                </li>
+              ))}
+          </ul>
         </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="Junior" id="junior" />
-          <Label htmlFor="junior">Junior</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="Senior" id="senior" />
-          <Label htmlFor="senior">Senior</Label>
-        </div>
-      </RadioGroup>
-      <div className="flex flex-col justify-center items-center">
-        <ul>
-          {users
-            .filter((user) => user.grade === selectedClass)
-            .map((user) => (
-              <li key={user.id}>
-                <Card user={user} />
-              </li>
-            ))}
-        </ul>
-      </div>
+      </Suspense>
     </div>
   );
 }
