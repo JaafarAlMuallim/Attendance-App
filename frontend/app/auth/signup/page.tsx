@@ -1,5 +1,5 @@
 "use client";
-import FormAR from "@/app/components/Form/Form-ar";
+import FormAR from "@/app/auth/Form-ar";
 import FormEN from "@/app/components/Form/Form-en";
 import { LangContext } from "@/store/lang-store";
 import { useContext } from "react";
