@@ -42,21 +42,21 @@ export default function NavbarEN() {
               <div className="flex space-x-4">
                 <Link
                   href="/classes"
-                  className=" text-slate-300 hover:bg-slate-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className=" text-white hover:bg-sky-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Classes
                 </Link>
                 <Link
                   href="/all-students"
-                  className="text-slate-300 hover:bg-slate-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-white hover:bg-sky-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                 >
                   All Students
                 </Link>
                 <Link
-                  href="/about"
-                  className="text-slate-300 hover:bg-slate-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  href="/reg-user"
+                  className="text-white hover:bg-sky-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  About
+                  Register User
                 </Link>
               </div>
             </div>

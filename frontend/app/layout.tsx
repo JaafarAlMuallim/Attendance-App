@@ -25,7 +25,9 @@ export default function RootLayout({
         <AuthProvider>
           <body className={`${inter.className} bg-gray-200 text-black`}>
             <Header />
-            <main>{children}</main>
+            <main className="w-full overflow-hidden flex items-center justify-center">
+              {children}
+            </main>
             <Toaster />
           </body>
         </AuthProvider>

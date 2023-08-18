@@ -1,6 +1,7 @@
 "use client";
 import { toast } from "@/components/ui/use-toast";
 import User from "@/types/user";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaCheck, FaSpinner, FaTrash } from "react-icons/fa";
@@ -61,7 +62,13 @@ export default function Card({
     setLoad(false);
   };
   return (
-    <div className="bg-sky-400 border-2 bg-opacity-40 border-sky-500 text-black flex mt-5 h-10 mx-2 md:mx-20 items-center justify-around rounded-md p-4">
+    <motion.li
+      className="bg-sky-400 border-2 bg-opacity-40 border-sky-500 text-black flex mt-5 h-10 mx-2 md:mx-20 items-center justify-around rounded-md p-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ delay: 0.175 }}
+    >
       <h2 className="inline-block font-serif text-xl overflow-hidden">
         <Link href={`/${user.id}`}>
           {name[0]} {name[name.length - 1]}
@@ -70,18 +77,38 @@ export default function Card({
       <span className="font-series text-lg">{phone}</span>
       <div className="flex flex-row items-center justify-between gap-2">
         {load ? (
-          <div className="text-black">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{
+              loop: Infinity,
+              duration: 1,
+              ease: "linear",
+            }}
+            className="text-black"
+          >
             <FaSpinner size={30} />
-          </div>
+          </motion.div>
         ) : (
-          <div className={!attendedToday ? "text-red-700" : "text-green-700"}>
-            <FaCheck size={30} onClick={() => attendUser(user.id!)} />
-          </div>
+          <>
+            {" "}
+            <div className={!attendedToday ? "text-red-700" : "text-green-700"}>
+              <FaCheck size={30} onClick={() => attendUser(user.id!)} />
+            </div>
+            <div className="text-slate-700">
+              <FaTrash
+                size={30}
+                onClick={() => {
+                  setLoad(true);
+                  deleteUser(user.id!);
+                  setTimeout(() => {
+                    setLoad(false);
+                  }, 1000);
+                }}
+              />
+            </div>
+          </>
         )}
-        <div className="text-slate-700">
-          <FaTrash size={30} onClick={() => deleteUser(user.id!)} />
-        </div>
       </div>
-    </div>
+    </motion.li>
   );
 }

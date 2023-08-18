@@ -4,8 +4,9 @@ import RadioButtons from "@/app/classes/RadioButtons";
 import Card from "@/app/components/Card/Card";
 import { toast } from "@/components/ui/use-toast";
 import User from "@/types/user";
+import { AnimatePresence, motion } from "framer-motion";
 import { useSession } from "next-auth/react";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 export default function ClassesPage() {
   const [selectedClass, setClass] = useState("freshman");
   const [users, setUsers] = useState<User[]>([]);
@@ -15,7 +16,7 @@ export default function ClassesPage() {
     if (!email) {
       return;
     }
-    const res = fetch(`http://localhost:8080/all-students?email=${email}`, {
+    const res = fetch(`http://localhost:8080/all-students/${email}`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -57,24 +58,33 @@ export default function ClassesPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center mt-5">
-      <RadioButtons
-        onClassChange={onClassChange}
-        selectedClass={selectedClass}
-      />
-      <Suspense fallback={<p>Loading..</p>}>
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 100 }}
+        className="flex flex-col items-center justify-center mt-5"
+      >
+        <RadioButtons
+          onClassChange={onClassChange}
+          selectedClass={selectedClass}
+        />
         <div className="flex flex-col w-full">
-          <ul>
+          <motion.ul>
             {users
               .filter((user) => user.grade === selectedClass)
               .map((user) => (
-                <li key={user.id}>
-                  <Card user={user} email={email!} deleteUser={deleteUser} />
-                </li>
+                <Card
+                  key={user.id}
+                  user={user}
+                  email={email!}
+                  deleteUser={deleteUser}
+                />
               ))}
-          </ul>
+          </motion.ul>
         </div>
-      </Suspense>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
+motion.li;
