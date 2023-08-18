@@ -22,8 +22,8 @@ app.get("/", async (req: Request, res: Response) => {
   const allUsers = await getUsers(org.id);
   res.send(allUsers);
 });
-app.get("/all-students", async (req: Request, res: Response) => {
-  const email = req.query.email as string;
+app.get("/all-students/:email", async (req: Request, res: Response) => {
+  const { email } = req.params;
   console.log(email);
   const org = await getOrgByEmail(email);
   const students = await getUsers(org.id);

@@ -25,8 +25,8 @@ app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const allUsers = yield (0, connect_1.getUsers)(org.id);
     res.send(allUsers);
 }));
-app.get("/all-students", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const email = req.query.email;
+app.get("/all-students/:email", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.params;
     console.log(email);
     const org = yield (0, connect_1.getOrgByEmail)(email);
     const students = yield (0, connect_1.getUsers)(org.id);
