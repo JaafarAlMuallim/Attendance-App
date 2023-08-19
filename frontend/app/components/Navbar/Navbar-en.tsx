@@ -109,7 +109,7 @@ export default function NavbarEN() {
                       Sign Out
                     </button>
                   )}
-                  <div className="px-4 py-2 flex items-center">
+                  {/* <div className="px-4 py-2 flex items-center">
                     <label
                       htmlFor="airplane-mode"
                       className="text-slate-300 text-sm hover:bg-slate-700 whitespace-nowrap"
@@ -123,7 +123,7 @@ export default function NavbarEN() {
                         console.log("CHANGE THEME");
                       }}
                     />
-                  </div>
+                  </div> */}
                   <div className="px-4 py-2 flex items-center">
                     <label
                       htmlFor="language"

@@ -1,15 +1,15 @@
 "use client";
-import Image from "next/image";
-import { useContext, useState } from "react";
-import { Switch } from "@/components/ui/switch";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
+import { Switch } from "@/components/ui/switch";
 import { LangContext } from "@/store/lang-store";
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useContext } from "react";
 
 export default function NavbarAR() {
   const { data: session } = useSession();
@@ -108,7 +108,7 @@ export default function NavbarAR() {
                       تسجيل الخروج
                     </Link>
                   )}
-                  <div className="px-4 py-2 flex items-center">
+                  {/* <div className="px-4 py-2 flex items-center">
                     <label
                       htmlFor="airplane-mode"
                       className="text-slate-300 text-sm hover:bg-slate-700 whitespace-nowrap"
@@ -123,7 +123,7 @@ export default function NavbarAR() {
                         console.log("CHANGE THEME");
                       }}
                     />
-                  </div>
+                  </div> */}
                   <div className="px-4 py-2 flex items-center">
                     <label
                       htmlFor="language"
