@@ -1,7 +1,15 @@
 "use client";
 
 import RadioButtons from "@/app/classes/RadioButtons";
-import Card from "@/app/components/Card/Card";
+import TableActionRow from "@/app/components/TableActionRow/TableActionRow";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
 import User from "@/types/user";
 import { AnimatePresence, motion } from "framer-motion";
@@ -69,22 +77,38 @@ export default function ClassesPage() {
           onClassChange={onClassChange}
           selectedClass={selectedClass}
         />
-        <div className="flex flex-col w-full">
-          <motion.ul>
-            {users
-              .filter((user) => user.grade === selectedClass)
-              .map((user) => (
-                <Card
-                  key={user.id}
-                  user={user}
-                  email={email!}
-                  deleteUser={deleteUser}
-                />
-              ))}
-          </motion.ul>
-        </div>
+        <motion.div
+          className="flex flex-col justify-center items-center my-20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+        >
+          <Table>
+            <TableCaption>A List of All Users</TableCaption>
+            <TableHeader>
+              <TableRow className="border-black">
+                <TableHead className="w-[200px]">Name</TableHead>
+                <TableHead className="w-[200px]">Phone Number</TableHead>
+                <TableHead className="w-[100px]">Grade</TableHead>
+                <TableHead className="w-[100px]">Type</TableHead>
+                <TableHead className="w-[200px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users
+                .filter((user) => user.grade === selectedClass)
+                .map((user) => (
+                  <TableActionRow
+                    key={user.id}
+                    user={user}
+                    email={email!}
+                    deleteUser={deleteUser}
+                  />
+                ))}
+            </TableBody>
+          </Table>
+        </motion.div>
       </motion.div>
     </AnimatePresence>
   );
 }
-motion.li;
