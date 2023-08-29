@@ -34,7 +34,7 @@ export default function TableActionRow({
   };
 
   useEffect(() => {
-    setAttendedToday(user.dateTime !== null && checker(user.dateTime!));
+    setAttendedToday(user.dateTime !== null && checker(user.dateTime![0]));
   }, [user.dateTime]);
 
   const attendUser = async (id: string) => {
@@ -46,7 +46,7 @@ export default function TableActionRow({
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
     if (res.ok) {
       toast({
@@ -61,6 +61,7 @@ export default function TableActionRow({
     setAttendedToday((prev) => !prev);
     setLoad(false);
   };
+  console.log(attendedToday);
   const name = user.fullName.split(" ");
   return (
     <TableRow key={user.id} className="border-black">

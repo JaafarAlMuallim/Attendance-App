@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "framer-motion": "^10.16.0",
     "nodemon": "^3.0.1"
   }
 }
