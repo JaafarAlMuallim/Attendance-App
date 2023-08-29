@@ -1,37 +1,36 @@
 "use client";
 
-import RadioButtons from "@/app/classes/RadioButtons";
 import TableActionRow from "@/app/components/TableActionRow/TableActionRow";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
+import { LangContext } from "@/store/lang-store";
 import User from "@/types/user";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import TableHeaderEN from "./TableHeader-en";
+import TableHeaderAR from "./TableHeader-ar";
+import RadioButtonsEN from "./RadioButtons-en";
+import RadioButtonsAR from "./RadioButtons-ar";
 export default function ClassesPage() {
   const [selectedClass, setClass] = useState("freshman");
   const [users, setUsers] = useState<User[]>([]);
+  const langCtx = useContext(LangContext);
   const { data: session } = useSession();
   const email = session?.user?.email;
+
   useEffect(() => {
     if (!email) {
       return;
     }
-    const res = fetch(`http://localhost:8080/all-students/${email}`, {
+    fetch(`http://localhost:8080/all-students/${email}`, {
       headers: {
         "Content-Type": "application/json",
       },
     })
       .then((res) => {
         if (res.ok) {
-          const data = res.json().then((data) => {
+          res.json().then((data) => {
             setUsers(data);
           });
         }
@@ -51,10 +50,10 @@ export default function ClassesPage() {
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
     if (res.ok) {
-      const data = await res.json();
+      await res.json();
       setUsers((prev) => prev.filter((user) => user.id !== id));
       toast({
         title: "Success",
@@ -73,10 +72,11 @@ export default function ClassesPage() {
         exit={{ opacity: 0, y: 100 }}
         className="flex flex-col items-center justify-center mt-5"
       >
-        <RadioButtons
-          onClassChange={onClassChange}
-          selectedClass={selectedClass}
-        />
+        {langCtx.lang === "en" ? (
+          <RadioButtonsEN onClassChange={onClassChange} />
+        ) : (
+          <RadioButtonsAR onClassChange={onClassChange} />
+        )}
         <motion.div
           className="flex flex-col justify-center items-center my-20"
           initial={{ opacity: 0, y: 20 }}
@@ -84,16 +84,7 @@ export default function ClassesPage() {
           exit={{ opacity: 0, y: 20 }}
         >
           <Table>
-            <TableCaption>A List of All Users</TableCaption>
-            <TableHeader>
-              <TableRow className="border-black">
-                <TableHead className="w-[200px]">Name</TableHead>
-                <TableHead className="w-[200px]">Phone Number</TableHead>
-                <TableHead className="w-[100px]">Grade</TableHead>
-                <TableHead className="w-[100px]">Type</TableHead>
-                <TableHead className="w-[200px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
+            {langCtx.lang === "en" ? <TableHeaderEN /> : <TableHeaderAR />}
             <TableBody>
               {users
                 .filter((user) => user.grade === selectedClass)

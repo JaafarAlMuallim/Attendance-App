@@ -6,8 +6,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import User from "@/types/user";
+import React from "react";
 
-export default function HomePageContent({
+export default function HomePageContentAR({
   users,
   email,
 }: {
@@ -18,10 +19,8 @@ export default function HomePageContent({
     <div className="grid gap-4 md:grid-cols-2 order-2 my-20">
       <Card className="order-2">
         <CardHeader>
-          <CardTitle>Total Users</CardTitle>
-          <CardDescription>
-            Number of users in your organizations
-          </CardDescription>
+          <CardTitle>عدد المستخدمين</CardTitle>
+          <CardDescription>عدد المستخدمين الكلي في النظام</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold">{email ? users.length : "313"}</p>
@@ -29,8 +28,8 @@ export default function HomePageContent({
       </Card>
       <Card className="order-2">
         <CardHeader>
-          <CardTitle>Seniors</CardTitle>
-          <CardDescription>Number of Seniors</CardDescription>
+          <CardTitle>ثالث ثانوي</CardTitle>
+          <CardDescription>عدد متسخدمين ثالث ثانوي الكلي</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold">
@@ -42,8 +41,8 @@ export default function HomePageContent({
       </Card>
       <Card className="order-3">
         <CardHeader>
-          <CardTitle>Juniors</CardTitle>
-          <CardDescription>Number of Seniors</CardDescription>
+          <CardTitle>ثاني ثانوي</CardTitle>
+          <CardDescription>عدد ثاني ثانوي الكلي</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold">
@@ -55,10 +54,8 @@ export default function HomePageContent({
       </Card>
       <Card className="order-4">
         <CardHeader>
-          <CardTitle>Fresh</CardTitle>
-          <CardDescription>
-            Number of Entry Levels and Freshmans
-          </CardDescription>
+          <CardTitle>اول ثانوي</CardTitle>
+          <CardDescription>عدد اول ثانوي الكلي</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold">

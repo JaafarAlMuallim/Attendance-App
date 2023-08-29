@@ -1,23 +1,18 @@
 "use client";
 import LoadingTable from "@/app/components/Loading/LoadingTable";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { LangContext } from "@/store/lang-store";
 
 import User from "@/types/user";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import TableEN from "./Table-en";
+import TableAR from "./Table-ar";
 
 export default function AllStudents() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
+  const langCtx = useContext(LangContext);
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -25,17 +20,14 @@ export default function AllStudents() {
       return;
     }
     setLoading(true);
-    const res = fetch(
-      `http://localhost:8080/all-students/${session?.user?.email}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
+    fetch(`http://localhost:8080/all-students/${session?.user?.email}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
       .then((res) => {
         if (res.ok) {
-          const data = res.json().then((data) => {
+          res.json().then((data) => {
             setUsers(data);
           });
         }
@@ -56,44 +48,11 @@ export default function AllStudents() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
     >
-      <Table>
-        <TableCaption>A List of All Users</TableCaption>
-        <TableHeader>
-          <TableRow className="border-black">
-            <TableHead className="w-[200px]">Name</TableHead>
-            <TableHead className="w-[200px]">Phone Number</TableHead>
-            <TableHead className="w-[100px]">Grade</TableHead>
-            <TableHead className="w-[100px]">Type</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => {
-            const name = user.fullName.split(" ");
-            return (
-              <TableRow key={user.id} className="border-black">
-                <TableCell className="font-medium">
-                  {name[0]} {name[name.length - 1]}{" "}
-                </TableCell>
-                <TableCell className="font-medium">{user.phone}</TableCell>
-                <TableCell className="font-medium">
-                  {user.grade
-                    ? `${
-                        user.grade.charAt(0).toUpperCase() + user.grade.slice(1)
-                      }`
-                    : "None"}
-                </TableCell>
-                <TableCell className="font-medium">
-                  {user.type
-                    ? `${
-                        user.type.charAt(0).toUpperCase() + user.type.slice(1)
-                      }`
-                    : "None"}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+      {langCtx.lang === "en" ? (
+        <TableEN users={users} />
+      ) : (
+        <TableAR users={users} />
+      )}
     </motion.div>
   );
 }

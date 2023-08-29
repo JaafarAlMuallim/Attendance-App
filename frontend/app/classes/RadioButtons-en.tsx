@@ -1,12 +1,10 @@
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-export default function RadioButtons({
+export default function RadioButtonsEN({
   onClassChange,
-  selectedClass,
 }: {
   onClassChange: (value: string) => void;
-  selectedClass: string;
 }) {
   return (
     <RadioGroup

@@ -14,9 +14,8 @@ import { useContext } from "react";
 export default function NavbarAR() {
   const { data: session } = useSession();
   const langContext = useContext(LangContext);
-
   return (
-    <nav className="bg-slate-700">
+    <nav className="bg-sky-700">
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-16">
           <Link href={"/"} className="text-xl text-white">
@@ -43,40 +42,43 @@ export default function NavbarAR() {
               <div className="flex space-x-4">
                 <Link
                   href="/classes"
-                  className=" text-slate-300 hover:bg-slate-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className=" text-white hover:bg-sky-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   الصفوف
                 </Link>
                 <Link
                   href="/all-students"
-                  className="text-slate-300 hover:bg-slate-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-white hover:bg-sky-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                 >
                   جميع الطلاب
                 </Link>
                 <Link
-                  href="/about"
-                  className="text-slate-300 hover:bg-slate-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  href="/reg-user"
+                  className="text-white hover:bg-sky-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  عنا
+                  تسجيل مستخدم
                 </Link>
               </div>
             </div>
           </div>
-          <div className="absolute inset-y-0 left-0 flex items-center sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            <div className="mr-3 relative">
+          <div className="absolute inset-y-0 right-0 flex items-center sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <div className="ml-3 relative">
               <Popover>
                 <PopoverTrigger
                   aria-controls="user-menu"
-                  className="max-w-xs bg-slate-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-700 focus:ring-white"
+                  className="max-w-xs bg-sky-400 bg-opacity-90 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-700 focus:ring-white"
                 >
-                  <span className="sr-only">قائمة المستخدم</span>
+                  <span className="sr-only">Open user menu</span>
 
-                  <span className="text-white underline p-3">الإعدادات</span>
+                  <span className="text-black underline p-3">
+                    {session && session.user !== null
+                      ? session.user?.name
+                      : "Settings"}
+                  </span>
                 </PopoverTrigger>
                 <PopoverContent
-                  className={`origin-top-left absolute 
-                  left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-slate-600 ring-1 ring-black ring-opacity-5`}
-                  dir="rtl"
+                  className={`origin-top-right absolute 
+                  right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-slate-800 ring-1 ring-black ring-opacity-5`}
                 >
                   <Link
                     href="/classes"
@@ -98,32 +100,15 @@ export default function NavbarAR() {
                       تسجيل الدخول
                     </Link>
                   ) : (
-                    <Link
+                    <button
                       className="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700"
-                      href={"/"}
-                      onClick={() => {
-                        signOut();
-                      }}
+                      onClick={() =>
+                        signOut({ redirect: true, callbackUrl: "/" })
+                      }
                     >
                       تسجيل الخروج
-                    </Link>
+                    </button>
                   )}
-                  {/* <div className="px-4 py-2 flex items-center">
-                    <label
-                      htmlFor="airplane-mode"
-                      className="text-slate-300 text-sm hover:bg-slate-700 whitespace-nowrap"
-                    >
-                      الوضع الليلي
-                    </label>
-                    <Switch
-                      dir="ltr"
-                      id="airplane-mode"
-                      className="mx-10"
-                      onClick={() => {
-                        console.log("CHANGE THEME");
-                      }}
-                    />
-                  </div> */}
                   <div className="px-4 py-2 flex items-center">
                     <label
                       htmlFor="language"
@@ -132,10 +117,9 @@ export default function NavbarAR() {
                       الانجليزية
                     </label>
                     <Switch
-                      dir="ltr"
                       id="language"
                       checked={langContext.lang === "ar"}
-                      className="mx-14"
+                      className="mx-11"
                       onClick={() => {
                         langContext.toggleLang();
                       }}
